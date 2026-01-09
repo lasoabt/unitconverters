@@ -392,14 +392,14 @@ class CookieConsent {
     }
 
     applyConsent(consent) {
-        // Apply analytics cookies (Google Analytics)
-        if (consent.analytics && !window.gtag) {
-            this.loadGoogleAnalytics();
+        // Enable analytics scripts if consent given
+        if (consent.analytics) {
+            this.enableScripts('analytics');
         }
 
-        // Apply advertising cookies (Google AdSense)
-        if (consent.advertising && !window.adsbygoogle) {
-            this.loadGoogleAdSense();
+        // Enable advertising scripts if consent given
+        if (consent.advertising) {
+            this.enableScripts('advertising');
         }
 
         // Store consent globally for other scripts
@@ -411,58 +411,37 @@ class CookieConsent {
         }));
     }
 
-    loadGoogleAnalytics() {
-        // Replace 'GA_TRACKING_ID' with your actual Google Analytics tracking ID
-        const trackingId = 'G-XXXXXXXXXX'; // You'll need to replace this with your actual GA4 tracking ID
+    enableScripts(consentType) {
+        // Find all blocked scripts with matching consent type
+        const scripts = document.querySelectorAll(`script[type="text/plain"][data-consent="${consentType}"]`);
         
-        // Load Google Analytics script
-        const script = document.createElement('script');
-        script.async = true;
-        script.src = `https://www.googletagmanager.com/gtag/js?id=${trackingId}`;
-        document.head.appendChild(script);
-
-        // Initialize Google Analytics
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        window.gtag = gtag;
-        gtag('js', new Date());
-        gtag('config', trackingId, {
-            anonymize_ip: true,
-            cookie_flags: 'SameSite=None;Secure'
-        });
-
-        console.log('Google Analytics loaded');
-    }
-
-    loadGoogleAdSense() {
-        // Replace 'ca-pub-XXXXXXXXXX' with your actual AdSense publisher ID
-        const publisherId = 'ca-pub-XXXXXXXXXX'; // You'll need to replace this with your actual AdSense ID
-        
-        // Load AdSense script
-        const script = document.createElement('script');
-        script.async = true;
-        script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${publisherId}`;
-        script.crossOrigin = 'anonymous';
-        document.head.appendChild(script);
-
-        // Initialize AdSense ads after script loads
-        script.onload = () => {
-            // Initialize ads on the page
-            if (window.adsbygoogle) {
-                try {
-                    const ads = document.querySelectorAll('.adsbygoogle');
-                    ads.forEach(ad => {
-                        if (!ad.getAttribute('data-adsbygoogle-status')) {
-                            (adsbygoogle = window.adsbygoogle || []).push({});
-                        }
-                    });
-                } catch (e) {
-                    console.log('AdSense initialization error:', e);
+        scripts.forEach(blockedScript => {
+            // Create a new script element
+            const newScript = document.createElement('script');
+            
+            // Copy all attributes except type and data-consent
+            Array.from(blockedScript.attributes).forEach(attr => {
+                if (attr.name !== 'type' && attr.name !== 'data-consent') {
+                    newScript.setAttribute(attr.name, attr.value);
                 }
+            });
+            
+            // If script has src, it's an external script
+            if (blockedScript.src) {
+                newScript.src = blockedScript.src;
+            } else {
+                // If no src, it's an inline script
+                newScript.textContent = blockedScript.textContent;
             }
-        };
-
-        console.log('Google AdSense loaded');
+            
+            // Set correct type
+            newScript.type = 'text/javascript';
+            
+            // Replace the blocked script with the active one
+            blockedScript.parentNode.replaceChild(newScript, blockedScript);
+        });
+        
+        console.log(`${consentType} scripts enabled`);
     }
 
     // Method to update consent (for settings page)
