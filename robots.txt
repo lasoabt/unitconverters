@@ -1,8 +1,15 @@
 User-agent: *
 Allow: /
+Disallow: /js/
+Disallow: /css/
+Disallow: *.log
+Disallow: /server.log
+Disallow: /admin/
+Disallow: /temp/
+Disallow: /cache/
 
 # Sitemap location
-Sitemap: https://unitconverter.com/sitemap.xml
+Sitemap: https://unit-converters.org/sitemap.xml
 
 # Crawl-delay for politeness
 Crawl-delay: 1
@@ -10,24 +17,49 @@ Crawl-delay: 1
 # Allow all major search engine bots
 User-agent: Googlebot
 Allow: /
+Crawl-delay: 1
 
 User-agent: Bingbot
 Allow: /
+Crawl-delay: 1
 
 User-agent: Slurp
 Allow: /
+Crawl-delay: 2
 
 User-agent: DuckDuckBot
 Allow: /
+Crawl-delay: 1
 
 User-agent: Baiduspider
 Allow: /
+Crawl-delay: 2
 
 User-agent: YandexBot
 Allow: /
+Crawl-delay: 1
 
-# Disallow sensitive areas
-Disallow: /js/
-Disallow: /css/
-Disallow: *.log
-Disallow: /server.log
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+# Block unwanted bots
+User-agent: BadBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+# Host directive (helps with canonical URLs)
+Host: https://unit-converters.org
